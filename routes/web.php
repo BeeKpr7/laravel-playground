@@ -3,6 +3,7 @@
 use App\Livewire\Wizzard;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\FilepondController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,9 +19,10 @@ use App\Http\Controllers\ProfileController;
 Route::get('/', function () {
     return redirect()->route('test');
 });
-Route::get('/test', function () {
-    return view('test');
-})->name('test');
+Route::view('/test', 'test')->name('test');
+
+Route::view('/filepond', 'form.filepond')->name('filepond');
+Route::post('/uploads/process', [FilepondController::class, 'process'])->name('filepond.process');
 
 Route::get('/wizzard', Wizzard::class)->name('wizzard');
 

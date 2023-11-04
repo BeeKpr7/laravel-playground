@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Laravel</title>
 
@@ -17,7 +18,7 @@
 </head>
 
 <body class="antialiased">
-    <div class="flex justify-center items-center w-full h-screen">
+    <div class="flex items-center justify-center w-full h-screen">
         @yield('content')
     </div>
 </body>
