@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\File;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class FilepondController extends Controller
 {
-    public function process(Request $request): string
+    public function upload(Request $request): string
     {
         // We don't know the name of the file input, so we need to grab
         // all the files from the request and grab the first file.
@@ -41,5 +43,23 @@ class FilepondController extends Controller
         return $file->store(
             path: 'tmp/'.now()->timestamp.'-'.Str::random(20)
         );
+    }
+
+    public function store (Request $request)
+    {
+        $validated = $request->validate([
+            'filepond' => 'required|string',
+        ]);
+ 
+        // Copy the file from a temporary location to a permanent location.
+        $fileLocation = Storage::putFile(
+            path: 'imports',
+            file: new File(Storage::path($validated['filepond']))
+        );
+
+        // Delete the temporary directory.
+        Storage::deleteDirectory('tmp/'.explode('/', $validated['filepond'])[1]);
+
+        return redirect(url('/storage/'.$fileLocation));
     }
 }
