@@ -7,7 +7,7 @@
                 <form action="{{ route('filepond.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <input type="file" name="filepond"
-                        class="flex items-center justify-center px-5 py-10 bg-blue-500 grow-0 rounded-xl filepond">
+                        class="flex items-center justify-center px-5 py-10 bg-blue-500 grow-0 rounded-xl filepond" multiple>
                     <button class="w-full py-3 text-xl font-bold bg-blue-400 rounded-xl" type="submit">Submit</button>
                 </form>
             </div>

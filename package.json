@@ -17,6 +17,7 @@
     },
     "dependencies": {
         "filepond": "^4.30.4",
+        "filepond-plugin-file-validate-type": "^1.2.8",
         "filepond-plugin-image-preview": "^4.6.11"
     }
 }
