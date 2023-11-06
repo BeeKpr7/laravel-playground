@@ -22,4 +22,5 @@ FilePond.create(inputElement).setOptions({
     },
     acceptedFileTypes: ["image/*"],
     allowMultiple: true,
+    dropOnPage: true,
 });

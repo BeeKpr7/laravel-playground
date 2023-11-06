@@ -47,18 +47,23 @@ class FilepondController extends Controller
 
     public function store (Request $request)
     {
+        // dd($request->all());
+        
         $validated = $request->validate([
-            'filepond' => 'required|string',
+            'images.*' => 'required|string',
         ]);
- 
-        // Copy the file from a temporary location to a permanent location.
-        $fileLocation = Storage::putFile(
-            path: 'imports',
-            file: new File(Storage::path($validated['filepond']))
-        );
+        // dd($validated);
+        
+        foreach ($validated['images'] as $path) {
+            // Copy the file from a temporary location to a permanent location.
+            $fileLocation = Storage::putFile(
+                path: 'images',
+                file: new File(Storage::path($path))
+            );
+            // Delete the temporary directory.
+            Storage::deleteDirectory('tmp/'.explode('/', $path)[1]);
+        }
 
-        // Delete the temporary directory.
-        Storage::deleteDirectory('tmp/'.explode('/', $validated['filepond'])[1]);
 
         return redirect(url('/storage/'.$fileLocation));
     }
