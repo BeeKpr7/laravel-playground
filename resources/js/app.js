@@ -1,6 +1,6 @@
 import "./bootstrap";
 
-import "./public/main.js";
+import "./public/filepond.js";
 
 import Alpine from "alpinejs";
 
