@@ -23,6 +23,8 @@ Route::get('/enum',[TestController::class, 'index'])->name('enum');
 
 Route::view('/test', 'test')->name('test');
 
+Route::view('/hero-icons', 'test/hero-icons')->name('hero-icons');
+
 Route::view('/filepond', 'form.filepond')->name('filepond');
 Route::post('/uploads/process', [FilepondController::class, 'upload'])->name('filepond.process');
 
