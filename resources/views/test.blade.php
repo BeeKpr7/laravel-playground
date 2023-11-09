@@ -23,5 +23,6 @@
                 <path d="M19.5 19.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z" />
             </svg>
         </button>
+        <button class="btn-primary">An Other Button</button>
     </div>
 @endsection

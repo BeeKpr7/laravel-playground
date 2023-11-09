@@ -1,3 +1,12 @@
+/* We can't use @tailwind directives and @import in the same file. */
+/* 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "./public/base.css"; */
+
+/* So we have to use @import in the app css file. */
+
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
