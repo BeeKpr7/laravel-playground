@@ -1,10 +1,10 @@
 @extends('partials.layout')
 @section('content')
-    <div class="w-60 h-96 pb-4 bg-white rounded-2xl flex-col justify-between items-center gap-4 inline-flex">
-        <div class="w-60 h-48 relative">
-            <img class="w-60 h-48 left-0 top-0 rounded-2xl absolute" src="https://via.placeholder.com/240x200" />
+    <div class="inline-flex flex-col items-center justify-between gap-4 pb-4 bg-white w-60 h-96 rounded-2xl">
+        <div class="relative h-48 w-60">
+            <img class="absolute top-0 left-0 h-48 w-60 rounded-2xl" src="https://via.placeholder.com/240x200" />
         </div>
-        <div class="self-stretch h-24 px-4 pb-3 border-b border-zinc-300 flex-col justify-start items-center gap-3 flex">
+        <div class="flex flex-col items-center self-stretch justify-start h-24 gap-3 px-4 pb-3 border-b border-zinc-300">
             <div class="self-stretch h-20 flex-col justify-start items-start gap-1.5 flex">
                 <div class="self-stretch text-center text-gray-900 text-lg font-extrabold font-['Mulish'] leading-normal">
                     Sebastian</div>
@@ -12,8 +12,8 @@
                     Sebastian creates circles and squares that actually make you want to interact with them.</div>
             </div>
         </div>
-        <button class="h-10 px-5 py-3 text-white bg-emerald-600 rounded-lg justify-center items-center gap-2 inline-flex">
-            <p class="text-center  text-sm font-semibold leading-normal">Get Started</p>
+        <button class="inline-flex items-center justify-center h-10 gap-2 px-5 py-3 text-white rounded-lg bg-emerald-600">
+            <p class="text-sm font-semibold leading-normal text-center">Get Started</p>
 
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                 <path
