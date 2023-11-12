@@ -2,7 +2,7 @@
 /* 
 @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities;k
 @import "./public/base.css"; */
 
 /* So we have to use @import in the app css file. */
