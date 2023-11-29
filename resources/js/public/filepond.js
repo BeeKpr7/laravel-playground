@@ -15,7 +15,7 @@ FilePond.registerPlugin(FilePondPluginFileValidateType);
 
 FilePond.create(inputElement).setOptions({
     server: {
-        process: "./uploads/process",
+        process: "/uploads/process",
         headers: {
             "X-CSRF-TOKEN": csrfToken,
         },

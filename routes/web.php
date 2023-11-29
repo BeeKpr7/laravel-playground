@@ -2,9 +2,10 @@
 
 use App\Livewire\Wizzard;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FilepondController;
-use App\Http\Controllers\TestController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -17,11 +18,11 @@ use App\Http\Controllers\TestController;
 */
 
 Route::get('/', function () {
-    return redirect()->route('test');
+    return redirect()->route('dashboard');
 });
 Route::get('/enum',[TestController::class, 'index'])->name('enum');
 
-Route::view('/test', 'test')->name('test');
+Route::view('/home', 'test')->name('home');
 
 Route::view('/hero-icons', 'test/hero-icons')->name('hero-icons');
 
@@ -35,6 +36,8 @@ Route::get('/wizzard', Wizzard::class)->name('wizzard');
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::resource('/posts', PostController::class);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
