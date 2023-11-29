@@ -24,7 +24,7 @@ class PostRequest extends FormRequest
         return [
             'title' => ['required', 'string'],
             'body' => ['required'],
-            'images.*' => ['required','string']
+            'images.*' => [request()->isMethod('post') ? 'required' : '','string']
         ];
     }
 }

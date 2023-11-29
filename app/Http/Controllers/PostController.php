@@ -32,20 +32,17 @@ class PostController extends Controller
         // Create a new post with the validated data
         $post = Post::create($validated);
 
-        foreach ($validated['images'] as $path) {
+        foreach ($validated['images'] as $key =>  $path) {
             // Copy the file from a temporary location to a permanent location.
             // $fileLocation = Storage::putFile(
             //     path: 'images',
             //     file: new File(Storage::path($path))
             // );
-            $url = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Macaca_nigra_self-portrait_large.jpg/1280px-Macaca_nigra_self-portrait_large.jpg";
-
-            $post->addMediaFromUrl($url)->toMediaCollection();
 
             // Add the file to the post media collection.
-            // $post->addMediaFromDisk($path, 'public')
-            //      ->usingName($post->title)
-            //      ->toMediaCollection('images');
+            $post->addMediaFromDisk($path, 'public')
+                 ->usingName($post->title.'-'.$key)
+                 ->toMediaCollection('images');
             
             // Delete the temporary directory.
             Storage::deleteDirectory('tmp/'.explode('/', $path)[1]);
@@ -72,33 +69,41 @@ class PostController extends Controller
         return view('posts.edit', compact('post'));
     }
 
-    public function update(Request $request, $id)
+    public function update(PostRequest $request, Post $post)
     {
         // Validate the request data
-        $validatedData = $request->validate([
-            'title' => 'required',
-            'content' => 'required',
-        ]);
-
-        // Find the post by ID
-        $post = Post::findOrFail($id);
+        $validatedData = $request->validated();
 
         // Update the post with the validated data
         $post->update($validatedData);
 
+        if (isset($validatedData['images'])) {
+
+            // Delete all the post media
+            $post->clearMediaCollection('images');
+
+            foreach ($validatedData['images'] as $key => $path) {
+                
+                // Add the file to the post media collection.
+                $post->addMediaFromDisk($path, 'public')
+                     ->usingName($post->title.'-'.$key)
+                     ->toMediaCollection('images');
+
+                // Delete the temporary directory.
+                Storage::deleteDirectory('tmp/'.explode('/', $path)[1]);
+            }
+        }
+
         // Redirect to the post show page
-        return redirect()->route('posts.show', $post->id);
+        return redirect()->route('posts.index')->with('success', 'Post updated successfully.');
     }
 
-    public function destroy($id)
+    public function destroy(Post $post)
     {
-        // Find the post by ID
-        $post = Post::findOrFail($id);
-
         // Delete the post
         $post->delete();
 
         // Redirect to the posts index page
-        return redirect()->route('posts.index');
+        return redirect()->route('posts.index')->with('success', 'Post deleted successfully.');
     }
 }

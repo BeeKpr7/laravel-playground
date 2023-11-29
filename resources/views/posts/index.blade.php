@@ -16,22 +16,51 @@
                         @foreach ($posts as $post)
                             <li class="flex justify-between py-5 gap-x-6">
                                 <div class="flex min-w-0 gap-x-4">
-                                    @foreach ($post->getMedia() as $img)
+                                    @foreach ($post->getMedia('images') as $img)
                                         <img class="flex-none w-12 h-12 rounded-full bg-gray-50"
                                             src="{{ $img->getUrl() }}" alt="">
                                     @endforeach
                                     <div class="flex-auto min-w-0">
-                                        <p class="text-sm font-semibold leading-6 text-gray-900">Leslie Alexander</p>
+                                        <p class="text-sm font-semibold leading-6 text-gray-900">{{ $post->title }}</p>
                                         <p class="mt-1 text-xs leading-5 text-gray-500 truncate">
-                                            leslie.alexander@example.com</p>
+                                            {{ $post->created_at->diffForHumans() }}</p>
                                     </div>
                                 </div>
-                                <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
-                                    <p class="text-sm leading-6 text-gray-900">Co-Founder / CEO</p>
-                                    <p class="mt-1 text-xs leading-5 text-gray-500">Last seen <time
-                                            datetime="2023-01-23T13:23Z">3h ago</time>
-                                    </p>
+                                <div @mouseover="open = true" @mouseout="open = false" class="relative"
+                                    x-data="{ open: false }">
+                                    <button
+                                        class="px-6 py-4 font-medium text-gray-500 dark:text-blue-700 hover:underline focus:outline-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                                        </svg>
+
+                                    </button>
+                                    <ul class="absolute top-0 z-50 p-4 mt-12 space-y-3 font-medium text-gray-500 -translate-x-1/2 bg-gray-100 rounded-lg shadow-lg text-md dark:text-gray-400 dark:bg-gray-700"
+                                        x-show="open">
+                                        <li class="">
+                                            <a href="{{ route('posts.edit', $post) }}"
+                                                class="flex items-center justify-between space-x-2 font-medium text-blue-500 dark:text-blue-700 hover:underline">
+                                                <p>{{ __('Edit') }}</p>
+                                                <x-heroicon-s-pencil-square class="w-4 h-4" />
+                                            </a>
+                                        </li>
+                                        <li class="">
+
+                                            <form method="POST" action="{{ route('posts.destroy', $post) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button
+                                                    class="flex items-center justify-between space-x-2 font-medium text-red-500 dark:text-blue-700 hover:underline">
+                                                    <p>{{ __('Delete') }}</p>
+                                                    <x-heroicon-o-trash class="w-4 h-4" />
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
                                 </div>
+
                             </li>
                         @endforeach
                     </ul>
