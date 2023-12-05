@@ -8,11 +8,12 @@
     <div class="py-12">
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
             <div class="overflow-hidden bg-white shadow-sm dark:bg-gray-800 sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+                <div class="flex flex-col items-start p-6 space-y-6 text-gray-900 dark:text-gray-100">
                     <a href="{{ route('posts.create') }}"
-                        class="right-0 px-5 py-2 mb-5 text-sm font-semibold leading-6 text-gray-900 rounded-lg shadow-md bg-slate-400">Add
+                        class="right-0 px-5 py-2 text-sm font-semibold leading-6 text-gray-900 rounded-lg shadow-md hover:bg-zinc-500 hover:text-white focus:bg-zinc-400 focus:shadow-inner hover:scale-200 bg-zinc-200 ">Add
                         Post</a>
-                    <ul role="list" class="mt-5 overflow-x-auto divide-y divide-gray-100 max-h-96">
+                    <ul role="list"
+                        class="w-full p-2 divide-y divide-gray-200 rounded-md shadow-sm bg-gray-50 border-s-2">
                         @foreach ($posts as $post)
                             <li class="flex justify-between py-5 gap-x-6">
                                 <div class="flex min-w-0 gap-x-4">
@@ -37,7 +38,7 @@
                                         </svg>
 
                                     </button>
-                                    <ul class="absolute top-0 z-50 p-4 mt-12 space-y-3 font-medium text-gray-500 -translate-x-1/2 bg-gray-100 rounded-lg shadow-lg text-md dark:text-gray-400 dark:bg-gray-700"
+                                    <ul class="absolute top-0 z-50 p-4 mt-12 space-y-3 font-medium text-gray-500 -translate-x-1/2 bg-white rounded-lg shadow-lg text-md dark:text-gray-400 dark:bg-gray-700"
                                         x-show="open">
                                         <li class="">
                                             <a href="{{ route('posts.edit', $post) }}"
@@ -64,7 +65,7 @@
                             </li>
                         @endforeach
                     </ul>
-                    <div class="mt-5">
+                    <div class="w-full">
                         {{ $posts->links() }}
                     </div>
                 </div>
