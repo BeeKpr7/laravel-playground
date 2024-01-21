@@ -1,10 +1,12 @@
 <?php
 
 use App\Livewire\Wizzard;
+use App\Livewire\PersonalBot;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FilepondController;
-use App\Http\Controllers\TestController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -19,7 +21,7 @@ use App\Http\Controllers\TestController;
 Route::get('/', function () {
     return redirect()->route('test');
 });
-Route::get('/enum',[TestController::class, 'index'])->name('enum');
+Route::get('/enum', [TestController::class, 'index'])->name('enum');
 
 Route::view('/test', 'test')->name('test');
 
@@ -31,6 +33,7 @@ Route::post('/uploads/process', [FilepondController::class, 'upload'])->name('fi
 Route::post('/uploads/store', [FilepondController::class, 'store'])->name('filepond.store');
 
 Route::get('/wizzard', Wizzard::class)->name('wizzard');
+Route::get('/openai', PersonalBot::class)->name('openai');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
