@@ -2,6 +2,7 @@
 
 use App\Livewire\Wizzard;
 use App\Livewire\PersonalBot;
+use App\Livewire\Simulateur;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\ProfileController;
@@ -34,6 +35,7 @@ Route::post('/uploads/store', [FilepondController::class, 'store'])->name('filep
 
 Route::get('/wizzard', Wizzard::class)->name('wizzard');
 Route::get('/openai', PersonalBot::class)->name('openai');
+Route::get('/simulateur', Simulateur::class)->name('openai');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
