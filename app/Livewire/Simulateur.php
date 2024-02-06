@@ -125,18 +125,16 @@ class Simulateur extends Component
         $impot = $this->calcul_plafond_quotient_familial($impot);
 
         $impot -= $this->calcul_decote($impot);
-        // dd($revenu, $tranche['taux'], $tranche['forfaitaire'], $nb_part, $impot, $quotient, $tranche['max'], $tranche['min']);
-        if ($impot < 0)
-            $impot = 0;
 
         $impot += $this->getPrelevementSociaux();
+
         return round($impot);
     }
 
     //Calcul l'impot en fonction du revenu et du nombre de part
-    public function calcul_impot(int $nb_part = null): int
+    public function calcul_impot(int $nb_part = null, int $revenu = null): int
     {
-        $revenu = $this->revenu_net_imposable ?? 0;
+        $revenu = $revenu ? $revenu : $this->revenu_net_imposable ?? 0;
 
         $nb_part = $nb_part ? $nb_part : $this->nb_part;
         $quotient = $revenu / $nb_part;
@@ -147,26 +145,35 @@ class Simulateur extends Component
             if ($quotient <= $tranche['max'] && $quotient > $tranche['min']) {
                 $impot = ($revenu * $tranche['taux']) - ($tranche['forfaitaire'] * $nb_part);
 
-                if ($impot < 0)
-                    $impot = 0;
-
                 return round($impot);
             }
         }
+        return 0;
     }
 
     //Calcul la decote en fonction de l'impot
     public function calcul_decote(int $impot, bool $isMaried = false): int
     {
 
+        $isMaried = $isMaried ? $isMaried : $this->isMaried;
+
+        //En fonction de la situation maritale on recupere le decote correspondant
         $decote = $isMaried ? $this->impot_decote['mariee'] : $this->impot_decote['seul'];
 
+        //Si l'impot est inferieur au seuil maximal de la decote
+        //Donc eligibilité a la decote
         if ($impot < $decote['seuil']) {
+            //On calcul la decote
             $result = round($decote['deduction'] - $impot * $decote['taux']);
+            if ($impot - $result < 0) {
+                $this->decote_imposition = 0;
+                return 0;
+            }
             $this->decote_imposition = $result;
             return $result;
         }
 
+        //Sinon on retourne 0
         $this->decote_imposition = 0;
         return 0;
     }
@@ -177,30 +184,34 @@ class Simulateur extends Component
         if ($this->isMaried)
             $nb_part += 1;
 
+        //Calcul de l'impot sans benefice 
         $impot_sans_benefice = $this->calcul_impot($nb_part);
 
+        //Calcul de l'avatage fiscale
         $avantage_fiscale = $impot_sans_benefice - $impot_non_corrigé;
 
-        $demi_part = [
-            0 => 0,
-            1 => 1,
-            2 => 2,
-            3 => 4,
-            4 => 6,
-        ];
-        $nombre_demi_part = $demi_part[$this->nb_enfant];
+        //Calcul du nombre de demi part
+        $nombre_demi_part = $this->nb_enfant * 1;
+        if ($this->nb_enfant > 2)
+            $nombre_demi_part = ($this->nb_enfant - 2) * 2 + 2;
 
-
+        //Calcul de l'avantage plafonné
         $avantage_plafonne = 1759 * $nombre_demi_part;
 
+        //Si le contribuable est seul et a des enfants
+        //On ajoute 4149 pour le premier enfant
         if ($this->isAlone && $this->nb_enfant > 0)
             $avantage_plafonne = 4149 + 1759 * ($nombre_demi_part - 1);
 
+        //Si l'avantage fiscale est superieur a l'avantage plafonné
+        //On applique le plafond
         if ($avantage_fiscale > $avantage_plafonne) {
             $this->plafond_quotient_familial = $avantage_plafonne;
             return $impot_sans_benefice - $avantage_plafonne;
         }
-
+        //Sinon on retourne l'impot non corrigé
+        //Et on met le plafond a 0
+        $this->plafond_quotient_familial = 0;
         return $impot_non_corrigé;
     }
 
