@@ -3,50 +3,40 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use App\Enums\FiscaliteType;
 
-trait Fiscalite
-{
-    //Retourne le nombre de part en fonction du nombre d'enfant 
-    //et de la situation familiale ( marié / ou non)
-    public function getPart(int $nb_child = 0, bool $isMaried = false): int
-    {
-        $parts = 1 + $nb_child * 0.5;
-
-        if ($nb_child > 2)
-            $parts = 2 + ($nb_child - 2) * 1;
-
-        if ($isMaried)
-            $parts += 1;
-
-        return $parts;
-    }
-
-    public function getQuotient(int $revenu, int $nb_part = 1): int
-    {
-        return round($revenu / $nb_part);
-    }
-}
 class Simulateur extends Component
 {
     public int $revenu_net_imposable;
     public int $nb_enfant = 0;
     public float $nb_part = 1;
     public float $impot = 0;
-    public bool $isMaried = true;
+    public float $impot_correction = 0;
+    public bool $isMaried = false;
     public bool $isAlone = true;
     public bool $isInvalide = false;
     public float $revenu_foncier = 0;
     public float $sociaux = 0;
+    public int $decote_imposition = 0;
+    public int $plafond_quotient_familial = 0;
 
     public array $tranches = [
-        '0'  => ['montant' => 10777, 'taux' => 0, 'forfaitaire' => 0],
-        '11' => ['montant' => 27478, 'taux' => 0.11, 'forfaitaire' => 1185.47],
-        '30' => ['montant' => 78570, 'taux' => 0.30, 'forfaitaire' => 6406.29],
-        '40' => ['montant' => 168994, 'taux' => 0.41, 'forfaitaire' => 15048.99],
-        '45' => ['montant' => 10000000000, 'taux' => 0.45, 'forfaitaire' => 21808.75],
+        '0' => ['min' => 0, 'max' => 11294, 'taux' => 0, 'forfaitaire' => 0],
+        '1' => ['min' => 11294, 'max' => 28797, 'taux' => 0.11, 'forfaitaire' => 1242.34],
+        '2' => ['min' => 28797, 'max' => 82341, 'taux' => 0.30, 'forfaitaire' => 6713.77],
+        '3' => ['min' => 82341, 'max' => 177106, 'taux' => 0.41, 'forfaitaire' => 15771.28],
+        '4' => ['min' => 177106, 'max' => 10000000000, 'taux' => 0.45, 'forfaitaire' => 22855.52],
     ];
     public float $prelevement_sociaux = 0.172;
+    public array $impot_decote = [
+        'seul'   => ['seuil' => 1930, 'deduction' => 873, 'taux' => 0.4525],
+        'mariee' => ['seuil' => 3192, 'deduction' => 1444, 'taux' => 0.4525]
+    ];
 
+    public function mount()
+    {
+        $this->simulateur = new Simulateur(FiscaliteType::DEFICIT_FONCIER);
+    }
 
     public function updated($field)
     {
@@ -56,9 +46,24 @@ class Simulateur extends Component
             $this->nb_enfant = 0;
         if ($this->revenu_foncier <= 0)
             $this->revenu_foncier = 0;
-        //$this->getPart();
 
-        $this->calculImpot();
+        $this->nb_part = $this->nb_part ?? 1;
+
+        if ($field == 'nb_enfant')
+            $this->getPart();
+
+        if ($field == 'isMaried')
+            $this->isAlone = !$this->isAlone;
+
+        if ($field == 'isAlone')
+            $this->isMaried = !$this->isMaried;
+
+        if ($field != 'nb_part')
+            $this->getPart();
+
+        $this->impot = $this->calculateur();
+
+        // $this->set_plafond_quotient_familial();
     }
 
     //Calcul le nombre de part fiscale
@@ -72,16 +77,24 @@ class Simulateur extends Component
         if ($this->isMaried)
             $parts += 1;
 
+        if ($this->isInvalide)
+            $parts += 0.5;
+
+        if ($this->isAlone && $this->nb_enfant > 0)
+            $parts += 0.5;
+
         $this->nb_part = $parts;
 
         return $parts;
     }
 
+    //Calcul le quotient
     public function getQuotient(): int
     {
-        return $this->revenu_net_imposable / $this->getPart();
+        return $this->revenu_net_imposable / $this->nb_part;
     }
 
+    //Retourn la tranche d'imposition
     public function getTranches(): array
     {
         foreach ($this->tranches as $tranche) {
@@ -92,11 +105,12 @@ class Simulateur extends Component
         return [];
     }
 
-    public function getPrelevementSociauxs(): float
+    //Retourne le montant des prélévements sociaux
+    public function getPrelevementSociaux(): float
     {
         if ($this->revenu_foncier >= 0) {
 
-            $this->sociaux = $this->impot = $this->revenu_foncier * $this->prelevement_sociaux;
+            $this->sociaux = $this->revenu_foncier * $this->prelevement_sociaux;
 
             return $this->sociaux;
         }
@@ -104,23 +118,97 @@ class Simulateur extends Component
         return 0;
     }
 
-    public function calculImpot()
+    public function calculateur(): int
+    {
+        $impot = $this->calcul_impot();
+
+        $impot = $this->calcul_plafond_quotient_familial($impot);
+
+        $impot -= $this->calcul_decote($impot);
+        // dd($revenu, $tranche['taux'], $tranche['forfaitaire'], $nb_part, $impot, $quotient, $tranche['max'], $tranche['min']);
+        if ($impot < 0)
+            $impot = 0;
+
+        $impot += $this->getPrelevementSociaux();
+        return round($impot);
+    }
+
+    //Calcul l'impot en fonction du revenu et du nombre de part
+    public function calcul_impot(int $nb_part = null): int
     {
         $revenu = $this->revenu_net_imposable ?? 0;
-        $revenu_foncier = $this->revenu_foncier ?? 0;
-        $nb_part = $this->nb_part;
-        $quotient = $revenu / $nb_part;
 
-        $this->impot = $this->getPrelevementSociauxs();
+        $nb_part = $nb_part ? $nb_part : $this->nb_part;
+        $quotient = $revenu / $nb_part;
 
 
         foreach ($this->tranches as $tranche) {
-            if ($quotient <= $tranche['montant']) {
-                $this->impot += $revenu * $tranche['taux'] - $nb_part * $tranche['forfaitaire'];
-                return;
+
+            if ($quotient <= $tranche['max'] && $quotient > $tranche['min']) {
+                $impot = ($revenu * $tranche['taux']) - ($tranche['forfaitaire'] * $nb_part);
+
+                if ($impot < 0)
+                    $impot = 0;
+
+                return round($impot);
             }
         }
     }
+
+    //Calcul la decote en fonction de l'impot
+    public function calcul_decote(int $impot, bool $isMaried = false): int
+    {
+
+        $decote = $isMaried ? $this->impot_decote['mariee'] : $this->impot_decote['seul'];
+
+        if ($impot < $decote['seuil']) {
+            $result = round($decote['deduction'] - $impot * $decote['taux']);
+            $this->decote_imposition = $result;
+            return $result;
+        }
+
+        $this->decote_imposition = 0;
+        return 0;
+    }
+
+    public function calcul_plafond_quotient_familial(int $impot_non_corrigé): int
+    {
+        $nb_part = 1;
+        if ($this->isMaried)
+            $nb_part += 1;
+
+        $impot_sans_benefice = $this->calcul_impot($nb_part);
+
+        $avantage_fiscale = $impot_sans_benefice - $impot_non_corrigé;
+
+        $demi_part = [
+            0 => 0,
+            1 => 1,
+            2 => 2,
+            3 => 4,
+            4 => 6,
+        ];
+        $nombre_demi_part = $demi_part[$this->nb_enfant];
+
+
+        $avantage_plafonne = 1759 * $nombre_demi_part;
+
+        if ($this->isAlone && $this->nb_enfant > 0)
+            $avantage_plafonne = 4149 + 1759 * ($nombre_demi_part - 1);
+
+        if ($avantage_fiscale > $avantage_plafonne) {
+            $this->plafond_quotient_familial = $avantage_plafonne;
+            return $impot_sans_benefice - $avantage_plafonne;
+        }
+
+        return $impot_non_corrigé;
+    }
+
+    public function calcul_quotient(int $revenu, int $nb_part = 1): int
+    {
+        return round($revenu / $nb_part);
+    }
+
     public function render()
     {
         return view('livewire.simulateur')->extends('partials.layout');

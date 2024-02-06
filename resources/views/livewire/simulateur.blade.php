@@ -99,10 +99,10 @@
                         <label for="revenu" class="block text-sm font-medium leading-6 text-gray-900">Revenus Net
                             Imposable</label>
                         <div class="mt-2">
-                            <input min=0 type="number" wire:model.live='revenu_net_imposable' name="revenu"
+                            <input min=0 type="number" wire:model.blur='revenu_net_imposable' name="revenu"
                                 placeholder="Montant en euros"
                                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-
+                            <li>Revenu Net Imposable : {{ $revenu_net_imposable }}</li>
                         </div>
                     </div>
                     <div class="col-span-2 sm:col-span-3">
@@ -112,8 +112,8 @@
                             <input wire:model.blur='revenu_foncier' type="number" min=0 name="foncier"
                                 placeholder="Montant en euros"
                                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-
                         </div>
+                        <li>Revenus Foncier : {{ $revenu_foncier }}</li>
                     </div>
                     <div class="col-span-2 sm:col-span-3">
                         <div class="flex justify-between">
@@ -203,77 +203,80 @@
                                                         class="flex w-full h-8 col-span-2 px-3 py-2 text-sm bg-transparent border rounded-md border-input ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                                         wire:model.live='nb_enfant' min=0 type="number"></div>
                                                 <div class="">
-                                                    <div x-data="{ switchOn: $wire.isMaried }"
+                                                    <div x-data="{ isMaried: @entangle('isMaried').live }"
                                                         class="flex items-center justify-between w-full">
                                                         <input wire:model.live='isMaried' type="checkbox" name="switch"
-                                                            class="hidden" :checked="switchOn">
+                                                            class="hidden" :checked="isMaried">
                                                         <label
                                                             @click="$refs.switchButton.click(); $refs.switchButton.focus()"
                                                             :id="$id('switch')"
-                                                            :class="{ 'text-blue-600': switchOn, 'text-gray-800': !switchOn }"
+                                                            :class="{ 'text-blue-600': isMaried, 'text-gray-800': !isMaried }"
                                                             class="text-sm select-none" x-cloak>
                                                             Marié(e)
                                                         </label>
 
                                                         <button x-ref="switchButton" type="button"
-                                                            @click="switchOn = ! switchOn"
-                                                            @click="$wire.isMaried = ! $wire.isMaried"
-                                                            :class="switchOn ? 'bg-blue-600' : 'bg-neutral-200'"
+                                                            @click="isMaried = ! isMaried;"
+                                                            :class="isMaried ? 'bg-blue-600' : 'bg-neutral-200'"
                                                             class="relative inline-flex h-6 py-0.5 ml-4 focus:outline-none rounded-full w-10"
                                                             x-cloak>
                                                             <span
-                                                                :class="switchOn ? 'translate-x-[18px]' : 'translate-x-0.5'"
+                                                                :class="isMaried ? 'translate-x-[18px]' : 'translate-x-0.5'"
                                                                 class="w-5 h-5 duration-200 ease-in-out bg-white rounded-full shadow-md"></span>
                                                         </button>
 
                                                     </div>
                                                 </div>
                                                 <div class="">
-                                                    <div x-data="{ switchOn: false }"
+                                                    <div x-data="{ isAlone: @entangle('isAlone').live }"
                                                         class="flex items-center justify-between w-full">
                                                         <input wire:model.live='isAlone' type="checkbox" name="maried"
-                                                            class="hidden" :checked="switchOn">
+                                                            class="hidden" :checked="isAlone">
                                                         <label
                                                             @click="$refs.switchButton.click(); $refs.switchButton.focus()"
                                                             :id="$id('switch')"
-                                                            :class="{ 'text-blue-600': switchOn, 'text-gray-800': !switchOn }"
+                                                            :class="{ 'text-blue-600': isAlone, 'text-gray-800': !isAlone }"
                                                             class="text-sm select-none" x-cloak>
                                                             Célibataire / Divorcé(e) / Veuf(ve)
                                                         </label>
 
                                                         <button x-ref="switchButton" type="button"
-                                                            @click="switchOn = ! switchOn"
-                                                            :class="switchOn ? 'bg-blue-600' : 'bg-neutral-200'"
+                                                            @click="isAlone = ! isAlone;"
+                                                            :class="isAlone ? 'bg-blue-600' : 'bg-neutral-200'"
                                                             class="relative inline-flex h-6 py-0.5 ml-4 focus:outline-none rounded-full w-10"
                                                             x-cloak>
                                                             <span
-                                                                :class="switchOn ? 'translate-x-[18px]' : 'translate-x-0.5'"
+                                                                :class="isAlone ? 'translate-x-[18px]' : 'translate-x-0.5'"
                                                                 class="w-5 h-5 duration-200 ease-in-out bg-white rounded-full shadow-md"></span>
                                                         </button>
 
                                                     </div>
                                                 </div>
                                                 <div class="">
-                                                    <div x-data="{ switchOn: false }"
+                                                    <div x-data="{ isInvalide: @entangle('isInvalide').live }"
                                                         class="flex items-center justify-between w-full">
                                                         <input id="thisId" type="checkbox" name="switch"
                                                             class="hidden" wire:model.live='isInvalide'
-                                                            type="checkbox" :checked="switchOn">
+                                                            type="checkbox" :checked="isInvalide">
                                                         <label
                                                             @click="$refs.switchButton.click(); $refs.switchButton.focus()"
                                                             :id="$id('switch')"
-                                                            :class="{ 'text-blue-600': switchOn, 'text-gray-800': !switchOn }"
+                                                            :class="{
+                                                                'text-blue-600': isInvalide,
+                                                                'text-gray-800': !
+                                                                    isInvalide
+                                                            }"
                                                             class="text-sm select-none" x-cloak>
                                                             Carte d'invalidité
                                                         </label>
 
                                                         <button x-ref="switchButton" type="button"
-                                                            @click="switchOn = ! switchOn"
-                                                            :class="switchOn ? 'bg-blue-600' : 'bg-neutral-200'"
+                                                            @click="isInvalide = ! isInvalide;"
+                                                            :class="isInvalide ? 'bg-blue-600' : 'bg-neutral-200'"
                                                             class="relative inline-flex h-6 py-0.5 ml-4 focus:outline-none rounded-full w-10"
                                                             x-cloak>
                                                             <span
-                                                                :class="switchOn ? 'translate-x-[18px]' : 'translate-x-0.5'"
+                                                                :class="isInvalide ? 'translate-x-[18px]' : 'translate-x-0.5'"
                                                                 class="w-5 h-5 duration-200 ease-in-out bg-white rounded-full shadow-md"></span>
                                                         </button>
 
@@ -296,7 +299,7 @@
                             <input wire:model.live='nb_part' type="number" min=1 name="nombre de parts fiscales"
                                 placeholder="Parts fiscales du foyer"
                                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-
+                            <li>Nombre de part : {{ $nb_part }}</li>
                         </div>
                     </div>
                 </div>
@@ -369,14 +372,17 @@
 
         <div class="flex justify-between">
             <div>
-                <li>Nombre de part : {{ $nb_part }}</li>
+                <li>Décote : {{ $decote_imposition }} €</li>
 
-                <li>Revenus Foncier : {{ $revenu_foncier }}</li>
+                <li>Déduction du quotient familiale plafonné: {{ $plafond_quotient_familial }} €</li>
+
+                <li>Contribution expetionnel sur les hauts revenus : {{ $impot_correction }} €</li>
+
             </div>
             <div class="text-right">
                 <h2 class="text-2xl font-semibold leading-7 text-gray-900">Montant de votre impôt</h2>
-                <p class="text-2xl font-semibold leading-7 text-gray-900">{{ $impot }} euros</p>
-                <p class="mt-1 text-sm leading-6 text-gray-600">Dont {{ $sociaux }} euros de prélèvement
+                <p class="text-2xl font-semibold leading-7 text-gray-900">{{ $impot }} €</p>
+                <p class="mt-1 text-sm leading-6 text-gray-600">Dont {{ $sociaux }} € de prélèvement
                     sociaux
                 </p>
             </div>
