@@ -107,7 +107,7 @@
                     </div>
                     <div class="col-span-2 sm:col-span-3">
                         <label for="foncier" class="block text-sm font-medium leading-6 text-gray-900">Dont Revenus
-                            Foncier</label>
+                            Net Foncier</label>
                         <div class="mt-2">
                             <input wire:model.blur='revenu_foncier' type="number" min=0 name="foncier"
                                 placeholder="Montant en euros"
@@ -296,8 +296,8 @@
                         </div>
 
                         <div class="mt-2">
-                            <input wire:model.live='nb_part' type="number" min=1 name="nombre de parts fiscales"
-                                placeholder="Parts fiscales du foyer"
+                            <input wire:model.live='nb_part' disabled type="number" min=1
+                                name="nombre de parts fiscales" placeholder="Parts fiscales du foyer"
                                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                             <li>Nombre de part : {{ $nb_part }}</li>
                         </div>
