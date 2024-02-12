@@ -18,7 +18,7 @@
 </head>
 
 <body class="antialiased">
-    <div class="flex items-center justify-center w-full h-screen">
+    <div class="flex justify-center w-full h-screen mt-10">
         @yield('content')
     </div>
 </body>

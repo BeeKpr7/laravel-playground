@@ -19,6 +19,8 @@ class Simulateur extends Component
     public float $sociaux = 0;
     public int $decote_imposition = 0;
     public int $plafond_quotient_familial = 0;
+    public int $contribution_exceptionel = 0;
+    public array $tableau_imposition = [];
 
     public array $tranches = [
         '0' => ['min' => 0, 'max' => 11294, 'taux' => 0, 'forfaitaire' => 0],
@@ -29,13 +31,13 @@ class Simulateur extends Component
     ];
     public float $prelevement_sociaux = 0.172;
     public array $impot_decote = [
-        'seul'   => ['seuil' => 1930, 'deduction' => 873, 'taux' => 0.4525],
-        'mariee' => ['seuil' => 3192, 'deduction' => 1444, 'taux' => 0.4525]
+        'seul' => ['seuil' => 1939, 'deduction' => 873, 'taux' => 0.4525],
+        'mariee' => ['seuil' => 3191, 'deduction' => 1444, 'taux' => 0.4525]
     ];
 
     public function mount()
     {
-        $this->simulateur = new Simulateur(FiscaliteType::DEFICIT_FONCIER);
+        //$this->simulateur = new Simulateur(FiscaliteType::DEFICIT_FONCIER);
     }
 
     public function updated($field)
@@ -62,6 +64,8 @@ class Simulateur extends Component
             $this->getPart();
 
         $this->impot = $this->calculateur();
+
+        // dd($this->tableau_imposition($this->revenu_net_imposable, $this->nb_part));
 
         // $this->set_plafond_quotient_familial();
     }
@@ -120,13 +124,16 @@ class Simulateur extends Component
 
     public function calculateur(): int
     {
-        $impot = $this->calcul_impot();
+        // $impot = $this->calcul_impot();
+        $impot = $this->tableau_imposition();
 
         $impot = $this->calcul_plafond_quotient_familial($impot);
-
+        
         $impot -= $this->calcul_decote($impot);
-
+        
         $impot += $this->getPrelevementSociaux();
+        
+        $impot += $this->calcul_contribution_exceptionel();
 
         return round($impot);
     }
@@ -185,7 +192,8 @@ class Simulateur extends Component
             $nb_part += 1;
 
         //Calcul de l'impot sans benefice 
-        $impot_sans_benefice = $this->calcul_impot($nb_part);
+        // $impot_sans_benefice = $this->calcul_impot($nb_part);
+        $impot_sans_benefice = $this->tableau_imposition($nb_part);
 
         //Calcul de l'avatage fiscale
         $avantage_fiscale = $impot_sans_benefice - $impot_non_corrigé;
@@ -206,11 +214,13 @@ class Simulateur extends Component
         //Si l'avantage fiscale est superieur a l'avantage plafonné
         //On applique le plafond
         if ($avantage_fiscale > $avantage_plafonne) {
+            $this->tableau_imposition($nb_part);
             $this->plafond_quotient_familial = $avantage_plafonne;
             return $impot_sans_benefice - $avantage_plafonne;
         }
         //Sinon on retourne l'impot non corrigé
         //Et on met le plafond a 0
+        $this->tableau_imposition();
         $this->plafond_quotient_familial = 0;
         return $impot_non_corrigé;
     }
@@ -218,6 +228,90 @@ class Simulateur extends Component
     public function calcul_quotient(int $revenu, int $nb_part = 1): int
     {
         return round($revenu / $nb_part);
+    }
+
+    private array $tranches_contribution_exceptionel = [
+            'seul' => [
+                ['taux'=> 0 , 'min' => 0, 'max' => 250000],
+                ['taux'=> 0.03 , 'min' => 250000, 'max' => 500000],
+                ['taux'=> 0.04 , 'min' => 500000, 'max' => 10000000000000],
+            ],
+            'mariee' => [            
+                ['taux'=> 0 , 'min' => 0, 'max' => 250000],
+                ['taux'=> 0 , 'min' => 250000, 'max' => 500000],
+                ['taux'=> 0.03 , 'min' => 500000, 'max' => 1000000],
+                ['taux'=> 0.04 , 'min' => 1000000, 'max' => 10000000000000],
+            ]
+        ];
+
+    public function calcul_contribution_exceptionel(int $revenu = null, bool $isMariee = false)
+    {
+        $isMariee = $isMariee ? $isMariee : $this->isMaried;
+        $revenu = $revenu ? $revenu : $this->revenu_net_imposable ?? 0;
+
+        $tranches = $this->tranches_contribution_exceptionel[$isMariee ? 'mariee' : 'seul'];
+
+        foreach ($tranches as $tranche) {
+            if ($revenu <= $tranche['max'] && $revenu > $tranche['min']) {
+                $this->contribution_exceptionel = ($revenu - $tranche['min']) * $tranche['taux'];
+                return ($revenu - $tranche['min']) * $tranche['taux'];
+            }
+
+        }
+        $this->contribution_exceptionel = 0;
+        return false;
+    }
+
+    public function tableau_imposition(int $nb_part = null, int $revenu = null): int
+    {
+        $revenu = $revenu ? $revenu : $this->revenu_net_imposable ?? 0;
+        $nb_part = $nb_part ? $nb_part : $this->nb_part;
+        $revenuRestant = $revenu;
+        $impotTotal = 0;
+
+        $tranches = $this->tranches;
+
+        $tableau_imposition = [];
+        // '0' => ['min' => 0, 'max' => 11294, 'taux' => 0, 'forfaitaire' => 0],
+
+        foreach($tranches as $tranche) {
+
+            // $revenuDansTranche = min($revenuRestant - ($tranche['max']*$nb_part - $tranche['min']*$nb_part));
+            if ($revenuRestant > $tranche['max']*$nb_part - $tranche['min']*$nb_part )
+                $revenuDansTranche = $tranche['max']*$nb_part - $tranche['min']*$nb_part;   
+            else
+                $revenuDansTranche = $revenuRestant;
+
+        
+            
+            // Calculer l'impôt pour la tranche
+            $impotTranche = $revenuDansTranche * $tranche['taux'];
+            $impotTotal += $impotTranche;
+
+            // Soustraire le revenu déjà imposé
+            $revenuRestant -= $revenuDansTranche;
+
+            $tableau_imposition[] = [
+                'taux' => $tranche['taux']*100 . ' %', 
+                'impot' => round($impotTranche), 
+                'revenu' => $revenuDansTranche, 
+                'tranche' => $tranche['min']*$nb_part.' - '.$tranche['max']*$nb_part
+            ];
+            // Si tout le revenu a été imposé, arrêter la boucle
+            if ($revenuRestant <= 0) {
+                break;
+            }
+        }
+        $tableau_imposition[] = [
+            'tranche' => 'TOTAL',
+            'taux' => round($impotTotal * 100 / $revenu, 2).' %',
+            'revenu' => $revenu,
+            'impot' => round($impotTotal)
+        ];
+        //$this->impot = round($impotTotal);
+        $this->tableau_imposition = $tableau_imposition;
+        return round($impotTotal);
+
     }
 
     public function render()

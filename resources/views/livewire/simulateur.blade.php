@@ -376,7 +376,7 @@
 
                 <li>Déduction du quotient familiale plafonné: {{ $plafond_quotient_familial }} €</li>
 
-                <li>Contribution expetionnel sur les hauts revenus : {{ $impot_correction }} €</li>
+                <li>Contribution expetionnel sur les hauts revenus : {{ $contribution_exceptionel }} €</li>
 
             </div>
             <div class="text-right">
@@ -387,6 +387,35 @@
                 </p>
             </div>
         </div>
+
+
+        <div class="flex items-center justify-center my-8 text-center">
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white shadow-md rounded-xl">
+                    <thead>
+                        <tr class="text-gray-700 bg-blue-gray-100">
+                            <th class="px-4 py-3 text-left">Tranche</th>
+                            <th class="px-4 py-3 text-left">Taux</th>
+                            <th class="px-4 py-3 text-left">Revenus</th>
+                            <th class="px-4 py-3 text-left">Impot</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-blue-gray-900">
+                        @foreach ($tableau_imposition as $tranche)
+                            <tr class="border-b border-blue-gray-200">
+                                <td class="px-4 py-3">{{ $tranche['tranche'] }}</td>
+                                <td class="px-4 py-3">{{ $tranche['taux'] }}</td>
+                                <td class="px-4 py-3">{{ $tranche['revenu'] }}</td>
+                                <td class="px-4 py-3">{{ $tranche['impot'] }}</td>
+
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
 
 
 
