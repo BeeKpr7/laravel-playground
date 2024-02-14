@@ -7,7 +7,7 @@ use App\Enums\FiscaliteType;
 
 class Simulateur extends Component
 {
-    public int $revenu_net_imposable;
+    public int $revenu_net_imposable=0;
     public int $nb_enfant = 0;
     public float $nb_part = 1;
     public float $impot = 0;
@@ -63,7 +63,8 @@ class Simulateur extends Component
         if ($field != 'nb_part')
             $this->getPart();
 
-        $this->impot = $this->calculateur();
+        if ($this->revenu_net_imposable)
+            $this->impot = $this->calculateur();
 
         // dd($this->tableau_imposition($this->revenu_net_imposable, $this->nb_part));
 
