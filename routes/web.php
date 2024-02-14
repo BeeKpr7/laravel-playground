@@ -35,7 +35,7 @@ Route::post('/uploads/store', [FilepondController::class, 'store'])->name('filep
 
 Route::get('/wizzard', Wizzard::class)->name('wizzard');
 Route::get('/openai', PersonalBot::class)->name('openai');
-Route::get('/simulateur', Simulateur::class)->name('openai');
+Route::get('/simulateur', Simulateur::class)->name('simulateur');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
