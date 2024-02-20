@@ -371,7 +371,7 @@ class Simulateur extends Component
 
             //Calcul des différentes réductions d'impôts
             //Réduction d'impôt sur le bénéfice foncier
-            $tableau_avantage_fiscal[$annee]['reduction_impot_benefice_foncier'] = $this->calcul_reduction_impot_benefice_foncier($tranches_benefice_foncier, $cumul_deficit_reportable, $benefice_foncier, $tableau_imposition);
+            $tableau_avantage_fiscal[$annee]['reduction_impot_benefice_foncier'] = $this->calcul_reduction_impot_benefice_foncier($tranches_benefice_foncier, $cumul_deficit_reportable, $benefice_foncier, $tableau_imposition, $montant_travaux_reportable);
 
             //Réduction des prélèvements sociaux sur le bénéfice foncier
             $tableau_avantage_fiscal[$annee]['reduction_prelevement_sociaux_bénéfice_foncier'] = $this->calcul_reduction_prelevement_sociaux_benefice_foncier($cumul_deficit_reportable, $benefice_foncier);
@@ -419,12 +419,12 @@ class Simulateur extends Component
         return $tranches_benefice_foncier;
     }
 
-    public function calcul_reduction_impot_benefice_foncier(array $tranches_benefice_foncier, int $cumul_deficit_reportable, int $benefice_foncier, array $tableau_imposition)
+    public function calcul_reduction_impot_benefice_foncier(array $tranches_benefice_foncier, int $cumul_deficit_reportable, int $benefice_foncier, array $tableau_imposition, int $travaux_reportable = 0)
     {
         $reduction = 0;
         //Si le cumul est plus petit que le bénéfice foncier
         //On recalcule les tranches en fonction du cumul
-        if ($cumul_deficit_reportable != 0 && $cumul_deficit_reportable - $benefice_foncier < 0) 
+        if ($cumul_deficit_reportable != 0 && $cumul_deficit_reportable - $benefice_foncier < 0 && $travaux_reportable < 0) 
             $tranches_benefice_foncier = $this->calcul_tranches_benefice_foncier($cumul_deficit_reportable, $tableau_imposition);
 
         foreach ($tranches_benefice_foncier as $tranche) {
