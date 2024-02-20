@@ -81,7 +81,7 @@ class Simulateur extends Component
             $this->impot = $this->calculateur();
         }
 
-        if ($this->montant_travaux > 0 && $this->tableau_imposition && $this->revenu_net_imposable != 0) {
+        if ($this->montant_travaux ?? 0 > 0 && $this->tableau_imposition && $this->revenu_net_imposable != 0) {
             $this->tableau_avantage_fiscal();
         }
     }
@@ -390,7 +390,7 @@ class Simulateur extends Component
 
             $annee++;
 
-        } while ($cumul_deficit_reportable > 0);
+        } while ($cumul_deficit_reportable > 0 || $montant_travaux_reportable > 0);
 
         $this->tableau_avantage_fiscal = $tableau_avantage_fiscal;
     }
