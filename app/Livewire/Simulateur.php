@@ -355,6 +355,8 @@ class Simulateur extends Component
         $annee = 0;
         $montant_travaux_reportable = $montant_travaux;
 
+        //Durée maximum d'amortissement des travaux
+        $max_duree_amortissement = 10 + count($repartition_travaux);
         //Calcul des tranches d'imposition du bénéfice foncier
         $tranches_benefice_foncier = $this->calcul_tranches_benefice_foncier($benefice_foncier, $tableau_imposition);        
         
@@ -366,15 +368,15 @@ class Simulateur extends Component
             $tableau_avantage_fiscal[$annee]['travaux_deduire'] = $repartition_travaux[$annee] ?? 0;
 
             //Calcul du montant des travaux reportable
-            $montant_travaux_reportable -= $tableau_avantage_fiscal[$annee]['travaux_deduire'];
-            $tableau_avantage_fiscal[$annee]['montant_travaux_reportable'] = $montant_travaux_reportable;
+             $montant_travaux_reportable -= $tableau_avantage_fiscal[$annee]['travaux_deduire'];
+            $tableau_avantage_fiscal[$annee]['montant_travaux_reportable'] = $this->calcul_travaux_reportable($repartition_travaux, $benefice_foncier, $annee);
 
             //Calcul des différentes réductions d'impôts
             //Réduction d'impôt sur le bénéfice foncier
-            $tableau_avantage_fiscal[$annee]['reduction_impot_benefice_foncier'] = $this->calcul_reduction_impot_benefice_foncier($tranches_benefice_foncier, $cumul_deficit_reportable, $benefice_foncier, $tableau_imposition, $montant_travaux_reportable);
+            $tableau_avantage_fiscal[$annee]['reduction_impot_benefice_foncier'] = $this->calcul_reduction_impot_benefice_foncier($tranches_benefice_foncier, $cumul_deficit_reportable, $benefice_foncier, $tableau_imposition, $tableau_avantage_fiscal[$annee]['travaux_deduire']);
 
             //Réduction des prélèvements sociaux sur le bénéfice foncier
-            $tableau_avantage_fiscal[$annee]['reduction_prelevement_sociaux_bénéfice_foncier'] = $this->calcul_reduction_prelevement_sociaux_benefice_foncier($cumul_deficit_reportable, $benefice_foncier);
+            $tableau_avantage_fiscal[$annee]['reduction_prelevement_sociaux_bénéfice_foncier'] = $this->calcul_reduction_prelevement_sociaux_benefice_foncier($cumul_deficit_reportable, $benefice_foncier, $tableau_avantage_fiscal[$annee]['travaux_deduire']);
 
             //Réduction d'impôt sur le revenu
             $tableau_avantage_fiscal[$annee]['reduction_impot_revenu'] = $this->calcul_reduction_impot_revenu($annee, $repartition, $tranches_benefice_foncier);
@@ -390,7 +392,7 @@ class Simulateur extends Component
 
             $annee++;
 
-        } while ($cumul_deficit_reportable > 0 || $montant_travaux_reportable > 0);
+        } while ($cumul_deficit_reportable > 0 && $annee < $max_duree_amortissement || $montant_travaux_reportable > 0);
 
         $this->tableau_avantage_fiscal = $tableau_avantage_fiscal;
     }
@@ -424,7 +426,7 @@ class Simulateur extends Component
         $reduction = 0;
         //Si le cumul est plus petit que le bénéfice foncier
         //On recalcule les tranches en fonction du cumul
-        if ($cumul_deficit_reportable != 0 && $cumul_deficit_reportable - $benefice_foncier < 0 && $travaux_reportable < 0) 
+        if ($cumul_deficit_reportable != 0 && $cumul_deficit_reportable - $benefice_foncier < 0 && $travaux_reportable == 0) 
             $tranches_benefice_foncier = $this->calcul_tranches_benefice_foncier($cumul_deficit_reportable, $tableau_imposition);
 
         foreach ($tranches_benefice_foncier as $tranche) {
@@ -433,9 +435,9 @@ class Simulateur extends Component
         return round($reduction);
     }
 
-    public function calcul_reduction_prelevement_sociaux_benefice_foncier(int $cumul_deficit_reportable, int $benefice_foncier)
+    public function calcul_reduction_prelevement_sociaux_benefice_foncier(int $cumul_deficit_reportable, int $benefice_foncier, int $travaux_reportable = 0)
     {
-       if ($cumul_deficit_reportable != 0 && $cumul_deficit_reportable - $benefice_foncier < 0 ) {
+       if ($cumul_deficit_reportable != 0 && $cumul_deficit_reportable - $benefice_foncier < 0 && $travaux_reportable == 0) {
             return round($cumul_deficit_reportable * $this->prelevement_sociaux);
        } else {
             return round($benefice_foncier * $this->prelevement_sociaux);
@@ -453,26 +455,6 @@ class Simulateur extends Component
         return $reduction;
     }
 
-    public function calcul_montant_travaux_reportable(int $annee, int $repartition_travaux)
-    {
-
-        $travaux_reportable = 0;
-        $nombre_annee_travaux = count($repartition_travaux);
-
-        if ($annee == $nombre_annee_travaux-1) {
-            return 0;
-        }
-        // for ($i = $anne+1; $i >= $nombre_annee_travaux; $i++) {
-        //     $travaux_reportable += $repartition_travaux[$i];
-        // }
-        foreach ($repartition_travaux as $key => $value) {
-            if ($key > $annee) {
-                $travaux_reportable += $value;
-            }
-        }
-        return $travaux_reportable;
-    }
-
     public function calcul_repartition_travaux(array $repartition, int $montant_travaux)
     {
         $repartition_travaux = [];
@@ -480,6 +462,20 @@ class Simulateur extends Component
             $repartition_travaux[$key] = $montant_travaux * $value;
         }
         return $repartition_travaux;
+    }
+
+    public function calcul_travaux_reportable(array $repartition_travaux, int $benefice_foncier, int $annee)
+    {
+        $result = 0;
+        if (isset($repartition_travaux[$annee])){
+            $result = $repartition_travaux[$annee] - $this->baladur;
+        }
+        $result -= $benefice_foncier;
+
+        if ($result < 0)
+            return 0;
+
+        return $result;
     }
 
     public function calcul_deficit_reportable(int $cumul_deficit_reportable, array $repartition_travaux, int $benefice_foncier, int $annee)
