@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FilepondController;
+use Illuminate\Support\Facades\App;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,10 +21,13 @@ use App\Http\Controllers\FilepondController;
 */
 
 Route::get('/', function () {
-    return redirect()->route('test');
+    return view('welcome');
 });
 Route::get('/enum', [TestController::class, 'index'])->name('enum');
-
+Route::get('/objet', [TestController::class, 'objet'])->name('objet');
+Route::get('/app', function () {
+    dd(App::isProduction());
+})->name('app');
 Route::view('/test', 'test')->name('test');
 
 Route::view('/hero-icons', 'test/hero-icons')->name('hero-icons');
@@ -36,6 +40,7 @@ Route::post('/uploads/store', [FilepondController::class, 'store'])->name('filep
 Route::get('/wizzard', Wizzard::class)->name('wizzard');
 Route::get('/openai', PersonalBot::class)->name('openai');
 Route::get('/simulateur', Simulateur::class)->name('simulateur');
+Route::get('/eric', [TestController::class, 'eric'])->name('eric');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
