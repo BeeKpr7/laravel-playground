@@ -1,9 +1,27 @@
 body {
-    background-color: rgba(116, 116, 230, 0.637);
+    background-color: rgba(244, 244, 252, 0.637);
+}
+
+@layer base {
+    input[type="number"],
+    input[type="number"] {
+        -webkit-appearance: none;
+        margin: 0;
+        appearance: none;
+        -moz-appearance: textfield !important;
+    }
 }
 
 @layer components {
     .btn-primary {
         @apply px-4 py-2 font-semibold text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
+    }
+
+    .btn-secondary {
+        @apply px-4 py-2 font-semibold text-white bg-gray-500 rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75;
+    }
+
+    .btn-tertiary {
+        @apply px-4 py-2 font-semibold text-white bg-green-500 rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75;
     }
 }

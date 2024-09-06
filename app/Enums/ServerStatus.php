@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum ServerStatus : int
+enum ServerStatus: int
 {
     case ONLINE = 1;
     case OFFLINE = 2;
@@ -39,5 +39,4 @@ enum ServerStatus : int
     {
         return $this->value === $value;
     }
-
 }

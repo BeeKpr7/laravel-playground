@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Laravel</title>
+    <title>Déficit Foncier</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -18,7 +18,7 @@
 </head>
 
 <body class="antialiased">
-    <div class="flex items-center justify-center w-full h-screen">
+    <div class="w-full mt-10">
         @yield('content')
     </div>
 </body>
