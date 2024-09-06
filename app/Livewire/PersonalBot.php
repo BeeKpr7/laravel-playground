@@ -15,7 +15,7 @@ class PersonalBot extends Component
 
     public ?string $answer = null;
 
-    public ?string $erro = null;
+    public ?string $error = null;
 
     private function createAndRunThread(): ThreadRunResponse
     {

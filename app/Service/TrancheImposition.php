@@ -10,6 +10,8 @@ class TrancheImposition
 
     private bool $isInvalid;
 
+    private bool $isAlone;
+
     private int $nombre_part;
 
     private int $quotient_imposition;
@@ -23,8 +25,6 @@ class TrancheImposition
         $this->setNombrePart();
     }
 
-    public static function fromRevenu(int $revenu): self {}
-
     private function setNombrePart()
     {
         $part = 1 + $this->nombre_enfant * 0.5;
@@ -37,7 +37,7 @@ class TrancheImposition
             $part += 1;
         }
 
-        if ($this->isInvalide) {
+        if ($this->isInvalid) {
             $part += 0.5;
         }
 
@@ -45,7 +45,7 @@ class TrancheImposition
             $part += 0.5;
         }
 
-        $this->nb_part = $part;
+        $this->nombre_part = $part;
 
         return $part;
     }

@@ -54,6 +54,8 @@ class FilepondController extends Controller
         ]);
         // dd($validated);
 
+        $fileLocation = '';
+
         foreach ($validated['images'] as $path) {
             // Copy the file from a temporary location to a permanent location.
             $fileLocation = Storage::putFile(

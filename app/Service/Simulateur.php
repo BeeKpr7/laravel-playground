@@ -71,8 +71,8 @@ class Imposition
     public function __construct()
     {
         //Récupération des variables d'imposition dans le fichier config
-        $this->CI = &get_instance();
-        $this->CI->config->load('imposition');
+        // $this->CI = &get_instance();
+        // $this->CI->config->load('imposition');
 
         $config = $this->CI->config;
 
