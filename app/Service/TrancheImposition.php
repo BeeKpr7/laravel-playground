@@ -5,9 +5,13 @@ namespace App\Service;
 class TrancheImposition
 {
     private int $nombre_enfant;
+
     private bool $isMariee;
+
     private bool $isInvalid;
+
     private int $nombre_part;
+
     private int $quotient_imposition;
 
     public function __construct()
@@ -18,10 +22,8 @@ class TrancheImposition
 
         $this->setNombrePart();
     }
-    public static function fromRevenu(int $revenu) : self
-    {
-         
-    }
+
+    public static function fromRevenu(int $revenu): self {}
 
     private function setNombrePart()
     {

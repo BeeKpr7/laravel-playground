@@ -2,26 +2,29 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use Illuminate\View\View;
+use Livewire\Component;
 use OpenAI\Laravel\Facades\OpenAI;
 use OpenAI\Responses\Threads\Runs\ThreadRunResponse;
 
 class PersonalBot extends Component
 {
     public string $question = '';
+
     public string $prompt = '';
+
     public ?string $answer = null;
+
     public ?string $erro = null;
 
     private function createAndRunThread(): ThreadRunResponse
     {
         return OpenAI::threads()->createAndRun([
             'assistant_id' => 'asst_JaegvPJoPARwC4XilUPhGQ6x',
-            'thread'       => [
+            'thread' => [
                 'messages' => [
                     [
-                        'role'    => 'user',
+                        'role' => 'user',
                         'content' => $this->prompt,
                     ],
                 ],
@@ -56,12 +59,13 @@ class PersonalBot extends Component
     {
         $this->prompt = $this->question;
 
-        $this->question = "";
+        $this->question = '';
 
         // $this->loadAnswer($threadRun);
         $this->js('$wire.loadAnswer()');
 
     }
+
     public function render(): View
     {
         return view('livewire.personal-bot')->extends('partials.layout');

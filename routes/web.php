@@ -1,13 +1,13 @@
 <?php
 
-use App\Livewire\Wizzard;
+use App\Http\Controllers\FilepondController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TestController;
 use App\Livewire\PersonalBot;
 use App\Livewire\Simulateur;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TestController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\FilepondController;
+use App\Livewire\Wizzard;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,4 +52,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

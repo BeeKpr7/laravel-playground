@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\File;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class FilepondController extends Controller
 {
@@ -13,21 +13,21 @@ class FilepondController extends Controller
     {
         // We don't know the name of the file input, so we need to grab
         // all the files from the request and grab the first file.
-        
+
         $files = $request->allFiles();
- 
+
         if (empty($files)) {
             abort(422, 'No files were uploaded.');
         }
- 
+
         if (count($files) > 1) {
             abort(422, 'Only 1 file can be uploaded at a time.');
         }
- 
+
         // Now that we know there's only one key, we can grab it to get
         // the file from the request.
         $requestKey = array_key_first($files);
- 
+
         // If we are allowing multiple files to be uploaded, the field in the
         // request will be an array with a single file rather than just a
         // single file (e.g. - `csv[]` rather than `csv`). So we need to
@@ -37,7 +37,7 @@ class FilepondController extends Controller
         $file = is_array($request->input($requestKey))
             ? $request->file($requestKey)[0]
             : $request->file($requestKey);
- 
+
         // Store the file in a temporary location and return the location
         // for FilePond to use.
         return $file->store(
@@ -45,15 +45,15 @@ class FilepondController extends Controller
         );
     }
 
-    public function store (Request $request)
+    public function store(Request $request)
     {
         // dd($request->all());
-        
+
         $validated = $request->validate([
             'images.*' => 'required|string',
         ]);
         // dd($validated);
-        
+
         foreach ($validated['images'] as $path) {
             // Copy the file from a temporary location to a permanent location.
             $fileLocation = Storage::putFile(
@@ -63,7 +63,6 @@ class FilepondController extends Controller
             // Delete the temporary directory.
             Storage::deleteDirectory('tmp/'.explode('/', $path)[1]);
         }
-
 
         return redirect(url('/storage/'.$fileLocation));
     }

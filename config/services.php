@@ -32,6 +32,6 @@ return [
     ],
     'mapbox' => [
         'public_token' => env('MAPBOX_PUBLIC_TOKEN'),
-    ],    
+    ],
 
 ];
