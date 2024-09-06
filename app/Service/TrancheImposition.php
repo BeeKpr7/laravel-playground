@@ -4,7 +4,7 @@ namespace App\Service;
 
 class TrancheImposition
 {
-    private int $nombre_enfant;
+            private int $nombre_enfant;
 
     private bool $isMariee;
 
