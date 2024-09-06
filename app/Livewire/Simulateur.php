@@ -79,7 +79,7 @@ class Simulateur extends Component
 
     public function updated($field)
     {
-        $this->revenu_foncier = $this->revenu_foncier ?? 0;
+        $this->revenu_foncier ??= 0;
 
         if ($this->nb_enfant <= 0) {
             $this->nb_enfant = 0;
@@ -88,7 +88,7 @@ class Simulateur extends Component
             $this->revenu_foncier = 0;
         }
 
-        $this->nb_part = $this->nb_part ?? 1;
+        $this->nb_part ??= 1;
 
         if ($field == 'nb_enfant') {
             $this->getPart();
@@ -106,7 +106,7 @@ class Simulateur extends Component
             $this->getPart();
         }
 
-        if ($this->revenu_net_imposable ?? null) {
+        if (($this->revenu_net_imposable ?? null) !== null && ($this->revenu_net_imposable ?? null) !== 0) {
             $this->impot = $this->calculateur();
         }
 
@@ -137,7 +137,7 @@ class Simulateur extends Component
         $parts = 1 + $this->nb_enfant * 0.5;
 
         if ($this->nb_enfant > 2) {
-            $parts = 2 + ($this->nb_enfant - 2) * 1;
+            $parts = 2 + ($this->nb_enfant - 2);
         }
 
         if ($this->isMaried) {
@@ -203,9 +203,9 @@ class Simulateur extends Component
     //Calcul l'impot en fonction du revenu et du nombre de part
     public function calcul_impot(?int $nb_part = null, ?int $revenu = null): int
     {
-        $revenu = $revenu ? $revenu : $this->revenu_net_imposable ?? 0;
+        $revenu = $revenu !== null && $revenu !== 0 ? $revenu : $this->revenu_net_imposable ?? 0;
 
-        $nb_part = $nb_part ? $nb_part : $this->nb_part;
+        $nb_part = $nb_part !== null && $nb_part !== 0 ? $nb_part : $this->nb_part;
         $quotient = $revenu / $nb_part;
 
         foreach ($this->tranches as $tranche) {
@@ -222,7 +222,7 @@ class Simulateur extends Component
     //Calcul la decote en fonction de l'impot
     public function calcul_decote(int $impot, bool $isMaried = false): int
     {
-        $isMaried = $isMaried ? $isMaried : $this->isMaried;
+        $isMaried = $isMaried ?: $this->isMaried;
 
         //En fonction de la situation maritale on recupere le decote correspondant
         $decote = $isMaried ? $this->impot_decote['mariee'] : $this->impot_decote['seul'];
@@ -267,7 +267,7 @@ class Simulateur extends Component
 
         //Calcul du nombre de demi part
         //Pour les deux premiers enfants 1 demi part
-        $nombre_demi_part = $this->nb_enfant * 1;
+        $nombre_demi_part = $this->nb_enfant;
         //Pour les enfants suivants 2 demi part
         if ($this->nb_enfant > 2) {
             $nombre_demi_part = ($this->nb_enfant - 2) * 2 + 2;
@@ -304,8 +304,8 @@ class Simulateur extends Component
 
     public function calcul_contribution_exceptionel(?int $revenu = null, bool $isMariee = false)
     {
-        $isMariee = $isMariee ? $isMariee : $this->isMaried;
-        $revenu = $revenu ? $revenu : $this->revenu_net_imposable ?? 0;
+        $isMariee = $isMariee ?: $this->isMaried;
+        $revenu = $revenu !== null && $revenu !== 0 ? $revenu : $this->revenu_net_imposable ?? 0;
 
         $tranches = $this->tranches_contribution_exceptionel[$isMariee ? 'mariee' : 'seul'];
 
@@ -323,8 +323,8 @@ class Simulateur extends Component
 
     public function tableau_imposition(?int $nb_part = null, ?int $revenu = null): int
     {
-        $revenu = $revenu ? $revenu : $this->revenu_net_imposable ?? 0;
-        $nb_part = $nb_part ? $nb_part : $this->nb_part;
+        $revenu = $revenu !== null && $revenu !== 0 ? $revenu : $this->revenu_net_imposable ?? 0;
+        $nb_part = $nb_part !== null && $nb_part !== 0 ? $nb_part : $this->nb_part;
         $revenuRestant = $revenu;
         $impotTotal = 0;
 
@@ -380,9 +380,8 @@ class Simulateur extends Component
 
     public function tableau_avantage_fiscal(?int $revenu = null, ?int $montant_travaux = null, ?array $repartition = null)
     {
-        $revenu = $revenu ? $revenu : $this->revenu_net_imposable ?? 0;
-        $montant_travaux = $montant_travaux ? $montant_travaux : $this->montant_travaux ?? 0;
-        $repartition = $repartition ? $repartition : $this->repartition_travaux ?? [0.5, 0.5];
+        $montant_travaux = $montant_travaux !== null && $montant_travaux !== 0 ? $montant_travaux : $this->montant_travaux ?? 0;
+        $repartition = $repartition !== null && $repartition !== [] ? $repartition : $this->repartition_travaux ?? [0.5, 0.5];
         $benefice_foncier = $this->revenu_foncier ?? 0;
 
         //Calcul de la repartition des travaux
@@ -489,7 +488,6 @@ class Simulateur extends Component
 
     public function calcul_reduction_impot_benefice_foncier(array $tranches_benefice_foncier, int $cumul_deficit_reportable, int $benefice_foncier, array $tableau_imposition, int $travaux_reportable = 0)
     {
-        $reduction = 0;
         //Si le cumul est plus petit que le bénéfice foncier
         //On recalcule les tranches en fonction du cumul
         if ($cumul_deficit_reportable != 0 && $cumul_deficit_reportable - $benefice_foncier < 0 && $travaux_reportable == 0) {
@@ -514,9 +512,7 @@ class Simulateur extends Component
             return 0;
         }
 
-        $reduction = $this->baladur * $tranches_benefice_foncier[count($tranches_benefice_foncier) - 1]['taux'];
-
-        return $reduction;
+        return $this->baladur * $tranches_benefice_foncier[count($tranches_benefice_foncier) - 1]['taux'];
     }
 
     public function calcul_repartition_travaux(array $repartition, int $montant_travaux)
@@ -565,16 +561,16 @@ class Simulateur extends Component
     {
         $this->repartition_travaux = [];
 
-        if ($this->annee1) {
+        if ($this->annee1 !== 0) {
             $this->repartition_travaux[0] = $this->annee1 / 100;
         }
-        if ($this->annee2) {
+        if ($this->annee2 !== 0) {
             $this->repartition_travaux[1] = $this->annee2 / 100;
         }
-        if ($this->annee3) {
+        if ($this->annee3 !== 0) {
             $this->repartition_travaux[2] = $this->annee3 / 100;
         }
-        if ($this->annee4) {
+        if ($this->annee4 !== 0) {
             $this->repartition_travaux[3] = $this->annee4 / 100;
         }
 

@@ -21,9 +21,6 @@ use App\Enums\FamillyStatus;
 
 class Imposition
 {
-    //Instance
-    private $CI;
-
     //Variables d'impositions récupérer dans le fichier config
     private $tranches_imposition;
 
@@ -32,8 +29,6 @@ class Imposition
     private $tranches_decote;
 
     private $tranches_contribution_exceptionnelle;
-
-    private $baladur;
 
     private $part_quotient_familial;
 
@@ -70,17 +65,10 @@ class Imposition
 
     public function __construct()
     {
-        //Récupération des variables d'imposition dans le fichier config
-        // $this->CI = &get_instance();
-        // $this->CI->config->load('imposition');
-
-        $config = $this->CI->config;
-
         $this->tranches_imposition = config('simulateur.tranches_imposition');
         $this->taux_prelevement_sociaux = config('simulateur.taux_prelevement_sociaux');
         $this->tranches_decote = config('simulateur.tranches_decote');
         $this->tranches_contribution_exceptionnelle = config('simulateur.tranches_contribution_exceptionnelle');
-        $this->baladur = config('simulateur.baladur');
         $this->part_quotient_familial = config('simulateur.part_quotient_familial');
 
     }
@@ -268,7 +256,7 @@ class Imposition
     {
         //Permet d'appeler la fonction avec un nombre de part spécifique
         //Sinon on prend le nombre de part défini
-        $nb_part = $nb_part ? $nb_part : $this->nb_part;
+        $nb_part = $nb_part ?: $this->nb_part;
 
         $revenu_restant = $this->revenu_net_imposable;
 

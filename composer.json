@@ -59,13 +59,15 @@
         ],
         "lint": "pint",
         "refactor": "rector",
+        "pest": "pest",
         "test:lint": "pint --test",
         "test:refactor": "rector --dry-run",
         "test:types": "phpstan analyse",
         "test": [
             "@test:lint",
             "@test:refactor",
-            "@test:types"
+            "@test:types",
+            "@pest"
         ]
     },
     "extra": {

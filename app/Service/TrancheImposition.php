@@ -4,24 +4,16 @@ namespace App\Service;
 
 class TrancheImposition
 {
-    private int $nombre_enfant;
+    private int $nombre_enfant = 0;
 
-    private bool $isMariee;
+    private bool $isMariee = false;
 
-    private bool $isInvalid;
+    private bool $isInvalid = false;
 
-    private bool $isAlone;
-
-    private int $nombre_part;
-
-    private int $quotient_imposition;
+    private bool $isAlone = false;
 
     public function __construct()
     {
-        $this->nombre_enfant = 0;
-        $this->isMariee = false;
-        $this->isInvalid = false;
-
         $this->setNombrePart();
     }
 
@@ -30,7 +22,7 @@ class TrancheImposition
         $part = 1 + $this->nombre_enfant * 0.5;
 
         if ($this->nombre_enfant > 2) {
-            $part = 2 + ($this->nombre_enfant - 2) * 1;
+            $part = 2 + ($this->nombre_enfant - 2);
         }
 
         if ($this->isMariee) {
@@ -44,8 +36,6 @@ class TrancheImposition
         if ($this->isAlone && $this->nombre_enfant > 0) {
             $part += 0.5;
         }
-
-        $this->nombre_part = $part;
 
         return $part;
     }

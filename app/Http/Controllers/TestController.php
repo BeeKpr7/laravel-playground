@@ -7,7 +7,7 @@ use App\Service\Simulateur;
 
 class TestController extends Controller
 {
-    public function index()
+    public function index(): never
     {
         dd(
             ServerStatus::cases(), // Collection of all cases (ONLINE, OFFLINE, MAINTENANCE)

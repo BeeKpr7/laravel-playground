@@ -63,7 +63,7 @@ class FilepondController extends Controller
                 file: new File(Storage::path($path))
             );
             // Delete the temporary directory.
-            Storage::deleteDirectory('tmp/'.explode('/', $path)[1]);
+            Storage::deleteDirectory('tmp/'.explode('/', (string) $path)[1]);
         }
 
         return redirect(url('/storage/'.$fileLocation));
